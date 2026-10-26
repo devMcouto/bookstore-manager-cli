@@ -1,11 +1,20 @@
-import { Autor } from "./models/Autor";
 import { AutorRepository } from "./repositories/AutorRepository";
+import { LivroRepository } from "./repositories/LivroRepository";
+import { AutorService } from "./services/AutorService";
+import { AutorController } from "./controllers/AutorController";
+import { AutorMenu } from "./menus/AutorMenu";
+import { Input } from "./utils/Input";
 
-async function testar(): Promise<void> {
-  const repo = new AutorRepository();
-  const id = await repo.proximoId();
-  await repo.salvar(new Autor(id, "Machado de Assis", "Brasileira"));
-  console.log(await repo.listar());
+async function iniciar(): Promise<void> {
+  const autorRepository = new AutorRepository();
+  const livroRepository = new LivroRepository();
+
+  const autorService = new AutorService(autorRepository, livroRepository);
+  const autorController = new AutorController(autorService);
+  const autorMenu = new AutorMenu(autorController);
+
+  await autorMenu.exibir();
+  Input.fechar();
 }
 
-testar();
+iniciar();
