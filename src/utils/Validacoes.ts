@@ -15,3 +15,26 @@ export function converterParaId(valor: string): number {
   }
   return numero;
 }
+
+export function converterParaInteiro(
+  valor: string,
+  campo: string,
+  minimo: number,
+  maximo?: number,
+): number {
+  const numero = Number(valor);
+  const acimaDoMaximo = maximo !== undefined && numero > maximo;
+  if (
+    valor.trim() === "" ||
+    !Number.isInteger(numero) ||
+    numero < minimo ||
+    acimaDoMaximo
+  ) {
+    const faixa =
+      maximo !== undefined ? `entre ${minimo}` : `maior ou igual a ${minimo}`;
+    throw new AppError(
+      `O campo "${campo}" deve ser um número inteiro ${faixa}.`,
+    );
+  }
+  return numero;
+}
