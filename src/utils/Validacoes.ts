@@ -38,3 +38,12 @@ export function converterParaInteiro(
   }
   return numero;
 }
+
+export function validarEmail(valor: string): string {
+  const email = valor.trim().toLowerCase();
+  const formatoValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  if (!formatoValido) {
+    throw new AppError("Informe um e-mail válido (exemplo: nome@email.com).");
+  }
+  return email;
+}
