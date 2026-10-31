@@ -50,3 +50,47 @@ CREATE TABLE emprestimos (
         data_devolucao IS NULL OR data_devolucao >= data_emprestimo
     )
 );
+
+
+-- 2. MANIPULAÇÃO DE DADOS (DML)
+
+
+INSERT INTO autores (id, nome, nacionalidade) VALUES
+    (1, 'Machado de Assis', 'Brasileira'),
+    (2, 'Clarice Lispector', 'Brasileira'),
+    (3, 'George Orwell', 'Britânica');
+
+INSERT INTO livros (id, titulo, autor_id, ano_publicacao, quantidade_total, quantidade_disponivel) VALUES
+    (1, 'Dom Casmurro', 1, 1899, 3, 2),
+    (2, 'Memórias Póstumas de Brás Cubas', 1, 1881, 2, 2),
+    (3, 'A Hora da Estrela', 2, 1977, 2, 1),
+    (4, '1984', 3, 1949, 4, 4);
+
+INSERT INTO clientes (id, nome, email, telefone) VALUES
+    (1, 'Ana Souza', 'ana@email.com', '47 99999-1111'),
+    (2, 'Bruno Lima', 'bruno@email.com', '47 99999-2222'),
+    (3, 'Carla Mendes', 'carla@email.com', '47 99999-3333');
+
+INSERT INTO emprestimos (id, livro_id, cliente_id, data_emprestimo, data_devolucao) VALUES
+    (1, 1, 1, '2026-10-20', NULL),
+    (2, 3, 2, '2026-10-22', NULL),
+    (3, 2, 3, '2026-10-10', '2026-10-17');
+
+
+SELECT setval(pg_get_serial_sequence('autores', 'id'),      (SELECT MAX(id) FROM autores));
+SELECT setval(pg_get_serial_sequence('livros', 'id'),       (SELECT MAX(id) FROM livros));
+SELECT setval(pg_get_serial_sequence('clientes', 'id'),     (SELECT MAX(id) FROM clientes));
+SELECT setval(pg_get_serial_sequence('emprestimos', 'id'),  (SELECT MAX(id) FROM emprestimos));
+
+UPDATE clientes
+   SET telefone = '47 98888-1111'
+ WHERE id = 1;
+
+ UPDATE livros
+   SET quantidade_total = 5,
+       quantidade_disponivel = 5
+ WHERE id = 4;
+
+ INSERT INTO autores (nome, nacionalidade) VALUES ('Autor Temporário', 'Desconhecida');
+DELETE FROM autores WHERE nome = 'Autor Temporário';
+
