@@ -14,6 +14,8 @@ import { AutorMenu } from "./menus/AutorMenu";
 import { LivroMenu } from "./menus/LivroMenu";
 import { ClienteMenu } from "./menus/ClienteMenu";
 import { EmprestimoMenu } from "./menus/EmprestimoMenu";
+import { MenuPrincipal } from "./menus/MenuPrincipal";
+import { carregarDadosIniciais } from "./data/seed";
 import { Input } from "./utils/Input";
 
 async function iniciar(): Promise<void> {
@@ -21,6 +23,13 @@ async function iniciar(): Promise<void> {
   const livroRepository = new LivroRepository();
   const clienteRepository = new ClienteRepository();
   const emprestimoRepository = new EmprestimoRepository();
+
+  await carregarDadosIniciais({
+    autores: autorRepository,
+    livros: livroRepository,
+    clientes: clienteRepository,
+    emprestimos: emprestimoRepository,
+  });
 
   const autorService = new AutorService(autorRepository, livroRepository);
   const livroService = new LivroService(
@@ -38,28 +47,21 @@ async function iniciar(): Promise<void> {
     clienteRepository,
   );
 
-  const autorMenu = new AutorMenu(new AutorController(autorService));
-  const livroMenu = new LivroMenu(new LivroController(livroService));
-  const clienteMenu = new ClienteMenu(new ClienteController(clienteService));
-  const emprestimoMenu = new EmprestimoMenu(
-    new EmprestimoController(emprestimoService),
+  const menuPrincipal = new MenuPrincipal(
+    new AutorMenu(new AutorController(autorService)),
+    new LivroMenu(new LivroController(livroService)),
+    new ClienteMenu(new ClienteController(clienteService)),
+    new EmprestimoMenu(new EmprestimoController(emprestimoService)),
   );
 
-  let sair = false;
-  while (!sair) {
-    console.log(
-      "\n1 - Autores\n2 - Livros\n3 - Clientes\n4 - Empréstimos\n0 - Sair",
-    );
-    const opcao = await Input.perguntar("Escolha: ");
-    if (opcao === "1") await autorMenu.exibir();
-    else if (opcao === "2") await livroMenu.exibir();
-    else if (opcao === "3") await clienteMenu.exibir();
-    else if (opcao === "4") await emprestimoMenu.exibir();
-    else if (opcao === "0") sair = true;
-    else console.log("Opção inválida.");
+  try {
+    await menuPrincipal.exibir();
+  } finally {
+    Input.fechar();
   }
-
-  Input.fechar();
 }
 
-iniciar();
+iniciar().catch((erro) => {
+  console.error("Erro fatal ao iniciar a aplicação:", erro);
+  process.exit(1);
+});
