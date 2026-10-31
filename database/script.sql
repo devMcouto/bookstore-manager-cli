@@ -94,3 +94,55 @@ UPDATE clientes
  INSERT INTO autores (nome, nacionalidade) VALUES ('Autor Temporário', 'Desconhecida');
 DELETE FROM autores WHERE nome = 'Autor Temporário';
 
+-- 3. CONSULTAS DOS RELATÓRIOS
+
+-- 3.1 Livros disponíveis
+SELECT l.id, l.titulo, a.nome AS autor, l.quantidade_disponivel
+  FROM livros l
+ INNER JOIN autores a ON a.id = l.autor_id
+ WHERE l.quantidade_disponivel > 0
+ ORDER BY l.titulo;
+
+-- 3.2 Livros emprestados (empréstimos ativos)
+SELECT e.id AS emprestimo, l.titulo, c.nome AS cliente, e.data_emprestimo
+  FROM emprestimos e
+ INNER JOIN livros l   ON l.id = e.livro_id
+ INNER JOIN clientes c ON c.id = e.cliente_id
+ WHERE e.data_devolucao IS NULL
+ ORDER BY e.data_emprestimo;
+
+-- 3.3 Livros cadastrados por autor (inclui autores sem livros)
+SELECT a.nome AS autor, COUNT(l.id) AS total_livros
+  FROM autores a
+  LEFT JOIN livros l ON l.autor_id = a.id
+ GROUP BY a.id, a.nome
+ ORDER BY total_livros DESC, a.nome;
+
+-- 3.4 Quantidade de empréstimos por livro (inclui livros nunca emprestados)
+SELECT l.titulo, COUNT(e.id) AS total_emprestimos
+  FROM livros l
+  LEFT JOIN emprestimos e ON e.livro_id = l.id
+ GROUP BY l.id, l.titulo
+ ORDER BY total_emprestimos DESC, l.titulo;
+
+-- 3.5 Clientes com empréstimos ativos
+SELECT c.id, c.nome, c.email, COUNT(e.id) AS emprestimos_ativos
+  FROM clientes c
+ INNER JOIN emprestimos e ON e.cliente_id = c.id
+ WHERE e.data_devolucao IS NULL
+ GROUP BY c.id, c.nome, c.email
+ ORDER BY emprestimos_ativos DESC, c.nome;
+
+-- 3.6 Extra: top 3 livros mais emprestados
+SELECT l.titulo, COUNT(e.id) AS total_emprestimos
+  FROM livros l
+ INNER JOIN emprestimos e ON e.livro_id = l.id
+ GROUP BY l.id, l.titulo
+ ORDER BY total_emprestimos DESC, l.titulo
+ LIMIT 3;
+
+-- 3.7 Extra: resumo do acervo
+SELECT SUM(quantidade_total)      AS exemplares_total,
+       SUM(quantidade_disponivel) AS exemplares_disponiveis,
+       SUM(quantidade_total - quantidade_disponivel) AS exemplares_emprestados
+  FROM livros;
